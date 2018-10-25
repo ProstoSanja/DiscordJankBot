@@ -6,10 +6,16 @@ const client = new Client();
 const spawn = require("child_process").spawn;
 const emojis = require("./emoji").alphabet;
 const fs = require('fs');
+var mymaster = null;
+var me = null;
 
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
+  client.fetchUser("387267678408146946").then(function(user) {
+    mymaster = user;
+  });
+  me = client.user;
 });
 
 client.on('message', message => {
@@ -32,10 +38,17 @@ client.on('message', message => {
       reacttomessage(message, "DONE")
     });
   } else if (text.startsWith('!about') || text.startsWith('!help')) {
+    console.log(message.author.id)
     const embed = new RichEmbed()
       .setTitle("i'm bot made by Alex!")
-      .setColor(0xFF0000)
-      .setDescription("Currently available commands:\n\n!about or !help: show information about me\n!helpmewithalgebra: Converts SQL query to relational algebra");
+      .setColor(0x00FF00)
+      .setDescription("Here is what i can do:")
+      .addField("!about", "Show information anout me",true)
+      .addField("!helpmewithalgebra", "Converts SQL query to relational algebra model (beta)", true)
+      .addField("!react", "Adds your word as emoji letter reactions to previous message", true)
+      .addField("!quote", "Inserts a random quote from a movie", true)
+      .setAuthor("Alex Tsernoh", mymaster.avatarURL, "http://www.facebook.com/alex.tsernoh")
+      .setFooter("My source: https://github.com/ProstoSanja/DiscordJankBot   Feel free to contribute!", me.avatarURL)
     channel.send(embed);
   } else if (text.startsWith('!react ')) {
     text = text.substring(7).toUpperCase();
