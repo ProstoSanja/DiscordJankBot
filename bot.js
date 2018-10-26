@@ -22,7 +22,7 @@ client.on('message', message => {
   // Ignore messages that aren't from a guild
   //if (!message.guild) return;
   text = message.content;
-  if (text=="") {
+  if (text=="" || message.author == me) {
     return;
   }
   channel = message.channel;
@@ -49,6 +49,7 @@ client.on('message', message => {
       .addField("!poll", "Create quick YES/NO poll (beta)", true)
       .addField("!helpmewithalgebra", "Converts SQL query to relational algebra model (beta)", true)
       .addField("!react", "Adds your word as emoji letter reactions to previous message", true)
+      .addField("!bigtext", "Prints givenn text in emoji letters", true)
       .addField("!quote", "Inserts a random quote from a movie", true)
       .addField("!suggest", "Any ideas?", true)
       .setAuthor("Alex Tsernoh", mymaster.avatarURL, "http://www.facebook.com/alex.tsernoh")
@@ -70,11 +71,30 @@ client.on('message', message => {
     });
   } else if (text.startsWith("!poll")) {
     reacttomessage(message, "[]")
-  } else if (text.startsWith("!suggest") && message.author != me) {
+  } else if (text.startsWith("!suggest")) {
     message.delete();
     mymaster.send(text + " ||| " + message.author.username)
+  } else if (text.startsWith("!bigtext")) {
+    text = text.substring(8);
+    message.delete();
+    channel.send("<@!" + message.author.id + ">" + transformtoemoji(text.toUpperCase()));
   }
 });
+
+function transformtoemoji(message) {
+  console.log(message)
+  newmessage = ""
+  for(i=0; i<message.length; i++) {
+    char = emojis[message.charAt(i)];
+    console.log(char)
+    if (char) {
+      newmessage += char + "\u200B";
+    } else {
+      newmessage += message.charAt(i)
+    }
+  }
+  return newmessage;
+}
 
 function reacttomessage(message, reaction) {
   if (reaction.length > 0) {
