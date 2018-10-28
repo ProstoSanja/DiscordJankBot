@@ -45,7 +45,7 @@ client.on('message', message => {
       .setTitle("i'm bot made by Alex!")
       .setColor(0x00FF00)
       .setDescription("Here is what i can do:")
-      .addField("!about", "Show information anout me", true)
+      .addField("!about", "Show information about me", true)
       .addField("!poll", "Create quick YES/NO poll (beta)", true)
       .addField("!helpmewithalgebra", "Converts SQL query to relational algebra model (beta)", true)
       .addField("!react", "Adds your word as emoji letter reactions to previous message", true)
@@ -69,6 +69,7 @@ client.on('message', message => {
           text = text.substring(text.indexOf(":")+1, text.length-1);
           entry[1].react(message.guild.emojis.get(text));
         } else {
+          text = text.replace(" ", "");
           reacttomessage(entry[1], text)
         }
       }
