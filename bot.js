@@ -80,8 +80,15 @@ client.on('message', message => {
       contents = contents.split("\n");
       message.reply('`' + contents[Math.floor(Math.random() * contents.length)] + '`');
     });
+  } else if (text.startsWith("!voteall///")) {
+    message.delete();
+    text = text.substring(8).trim();
+    message.guild.channels.get("505347340014714880").send("@everyone " + text)
+      .then(message => reacttomessage(message, "[]"));
+  } else if (text.startsWith("!voteyacrs")) {
+    reacttomessage(message, "ABCDE")
   } else if (text.startsWith("!poll") || text.startsWith("!vote")) {
-    reacttomessage(message, "[]")
+    reacttomessage(message, "[]");
   } else if (text.startsWith("!suggest")) {
     message.delete();
     mymaster.send(text + " ||| " + message.author.username);
@@ -89,6 +96,9 @@ client.on('message', message => {
     text = text.substring(8);
     message.delete();
     message.reply(transformtoemoji(text.toUpperCase()));
+  } else if (text == "F" && false) {
+    message.delete();
+    message.reply(transformtoemoji("F"));    
   } else if (text.startsWith("!🆎ortnite")) {
     message.delete();
     if (message.member.voiceChannel) {
@@ -104,6 +114,23 @@ client.on('message', message => {
       })
       .catch(console.log);
     }
+  } else if (text.startsWith("!seat")) {
+    text = text.substring(5).trim().split(" ");
+    message.delete();
+    if (text.size == 2) {
+      var pyProg = spawn('python', ["./seating.py", message.author.username, text[0], text[1]]);
+      pyProg.stdout.on('data', function (data) {
+        data = data.toString('utf8');
+      });
+    }
+    console.log(text);
+  } else if (text.startsWith("!random")) {
+    text = text.substring(text.indexOf("<@&")+3, text.indexOf(">"));
+    people = Array.from(message.guild.roles.get(text).members);
+    result = people[Math.floor(Math.random() * people.length)][1];
+    console.log(result);
+    channel.send("<@!" + result.id + ">");
+    //console.log(Array.from(message.guild.members)[result][1]);
   }
 });
 
