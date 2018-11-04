@@ -8,6 +8,7 @@ const emojis = require("./emoji").alphabet;
 const fs = require('fs');
 var mymaster = null;
 var me = null;
+var infochat = null;
 
 
 client.on('ready', () => {
@@ -16,6 +17,7 @@ client.on('ready', () => {
     mymaster = user;
   });
   me = client.user;
+  infochat = client.channels.get("505347340014714880");
 });
 
 client.on('message', message => {
@@ -24,14 +26,6 @@ client.on('message', message => {
     return;
   }
   checkmessage(message, text);
-
-  //refactor later
-  //if (text.startsWith("!voteall///")) {
-    //message.delete();
-    //text = text.substring(8).trim();
-    //message.guild.channels.get("505347340014714880").send("@everyone " + text)
-      //.then(message => reacttomessage(message, "[]"));
-  //}
 });
 
 function checkmessage(message, text) {
@@ -67,6 +61,10 @@ function checkmessage(message, text) {
     case "!voteyacrs":
       reacttomessage(message, ["🇦","🇧","🇨","🇩","🇪"]);      
       break;
+    case "!voteall":
+      message.delete();
+      sendall(text, true);   
+      break;
     case "!vote":
       reacttomessage(message, ["✅","❎"]);
       break;
@@ -76,6 +74,10 @@ function checkmessage(message, text) {
     case "!suggest":
       message.delete();
       mymaster.send(text + " ||| " + message.author.username);
+      break;
+    case "!announce":
+      message.delete();
+      sendall(text, false);
       break;
   }
 }
@@ -180,6 +182,16 @@ function react(message, text) {
       }
     }
     reacttomessage(message, reactstring)
+  });
+}
+
+
+function sendall(text, vote) {
+  text.splice(0,1);
+ infochat.send("@everyone " + text.join(" ")).then(function (message) {
+    if (vote) {
+      reacttomessage(message, ["✅","❎"]);
+    }
   });
 }
 
