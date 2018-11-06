@@ -9,6 +9,7 @@ const fs = require('fs');
 var mymaster = null;
 var me = null;
 var infochat = null;
+var infomessage = null;
 
 
 client.on('ready', () => {
@@ -18,6 +19,9 @@ client.on('ready', () => {
   });
   me = client.user;
   infochat = client.channels.get("505347340014714880");
+  infochat.fetchMessage("508956277796372480").then(function (message) {
+    infomessage = message;
+  }); //temp as hell, fix later!
 });
 
 client.on('message', message => {
@@ -79,6 +83,13 @@ function checkmessage(message, text) {
       message.delete();
       sendall(text, false);
       break;
+    case "!editannounce":
+      message.delete();
+      edit(infomessage, text);
+      break;      
+    case "!GDPR":
+      message.reply(" We have updated our privacy policy. Please acknowledge new terms here: http://cs  gofuckyourself.com");
+      break;
   }
 }
 
@@ -88,14 +99,33 @@ function about(message) {
     .setTitle("i'm bot made by Alex!")
     .setColor(0x00FF00)
     .setDescription("Here is what i can do:")
-    .addField("!about", "Show information about me", true)
-    .addField("!poll", "Create quick YES/NO poll (beta)", true)
-    .addField("!helpmewithalgebra", "Converts SQL query to relational algebra model (beta)", true)
-    .addField("!react", "Adds your word as emoji letter reactions to previous message", true)
-    .addField("!bigtext", "Prints givenn text in emoji letters", true)
-    .addField("!quote", "Inserts a random quote from a movie", true)
-    .addField("!:ab:ortnite", "Suprise for your friends in a voice chat", true)
-    .addField("!suggest", "Any ideas?", true)
+    .addField("Votes", '\
+    **!vote** -> General YES/NO vote \n\
+    **!voteyacrs** -> Geberal ABCDE vote \n\
+    **!voteall** -> General YES/NO votee in announcments channel (Admin only) \
+    ', true)
+    .addField("Utilities", '\
+    **!algebra** -> Converts your SQL query into relational algebra (Beta) \n\
+    **!seat** -> Work in progress \n\
+    **!random** -> Choose random person from @Role on server (Admin only) \n\
+    **!announce** -> Send a messege with @everybody tag and your content to announcments chat (Admin only) \n\
+    **!editannounce** -> Edit last announcment (Admin only) \
+    ', true)    
+    .addField("Fun chat stuff", '\
+    **!quote** -> Send a random quote from a movie \n\
+    **!react** -> Convert your text or emoji into reaction for a previous message in channel \n\
+    **!bigtext** -> Convert the text you are sending into emoji letters \n\
+    **!GDPR** -> Print privacy notice (duh) \
+    ', true)
+    .addField("Music", '\
+    **!:ab:ortnite** -> You need to be in voice chat for it to work \n\
+    **!despacito** -> You need to be in voice chat for it to work (Beta) \
+    ', true)
+    .addField("Help", '\
+    **!help** -> Prints this message and causes other bots to freak out \n\
+    **!about** -> Prints this message \n\
+    **!suggest** -> Send suggestion to my creator \
+    ', true)
     .setAuthor("Alex Tsernoh", mymaster.avatarURL, "http://www.facebook.com/alex.tsernoh")
     .setFooter("My source: https://github.com/ProstoSanja/DiscordJankBot   Feel free to contribute!", me.avatarURL);
   message.author.send(embed);
@@ -188,11 +218,17 @@ function react(message, text) {
 
 function sendall(text, vote) {
   text.splice(0,1);
- infochat.send("@everyone " + text.join(" ")).then(function (message) {
+  infochat.send("@everyone \n" + text.join(" ")).then(function (message) {
     if (vote) {
       reacttomessage(message, ["✅","❎"]);
     }
   });
+}
+
+function edit(message, text) {
+  console.log(message);
+  text.splice(0,1);
+  message.edit("@everyone \n" + text.join(" "));
 }
 
 // react to with emoji
