@@ -89,7 +89,11 @@ function checkmessage(message, text) {
       edit(infomessage, text);
       break;
     case "!GDPR":
-      message.reply(" We have updated our privacy policy. Please acknowledge new terms here: http://cs  gofuckyourself.com");
+      message.reply(" We have updated our privacy policy. Please acknowledge new terms here: http://csgofuckyourself.com");
+      break;
+    case "!delete":
+      message.delete();
+      deletemessage(text);
       break;
   }
 }
@@ -155,6 +159,13 @@ function playmusic(message, song) {
       })
       .catch(console.log);
   }
+}
+
+function deletemessage(text) {
+  var chat = client.channels.get(text[1]);
+  chat.fetchMessage(text[2]).then(function (message) {
+     message.delete();
+  });
 }
 
 function chooserandom(message, text) {
