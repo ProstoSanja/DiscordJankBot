@@ -34,7 +34,7 @@ client.on('message', message => {
 
 function checkmessage(message, text) {
   console.log(text)
-  switch(text[0]) {
+  switch (text[0]) {
     case "!about":
       about(message);
       break;
@@ -60,17 +60,17 @@ function checkmessage(message, text) {
       runprogr(message, "relational_algebra", text);
       break;
     case "!react":
-      react(message, text);      
+      react(message, text);
       break;
     case "!voteyacrs":
-      reacttomessage(message, ["🇦","🇧","🇨","🇩","🇪"]);      
+      reacttomessage(message, ["🇦", "🇧", "🇨", "🇩", "🇪"]);
       break;
     case "!voteall":
       message.delete();
-      sendall(text, true);   
+      sendall(text, true);
       break;
     case "!vote":
-      reacttomessage(message, ["✅","❎"]);
+      reacttomessage(message, ["✅", "❎"]);
       break;
     case "!bigtext":
       bigtext(message, text);
@@ -86,7 +86,7 @@ function checkmessage(message, text) {
     case "!editannounce":
       message.delete();
       edit(infomessage, text);
-      break;      
+      break;
     case "!GDPR":
       message.reply(" We have updated our privacy policy. Please acknowledge new terms here: http://cs  gofuckyourself.com");
       break;
@@ -110,7 +110,7 @@ function about(message) {
     **!random** -> Choose random person from @Role on server (Admin only) \n\
     **!announce** -> Send a messege with @everybody tag and your content to announcments chat (Admin only) \n\
     **!editannounce** -> Edit last announcment (Admin only) \
-    ', true)    
+    ', true)
     .addField("Fun chat stuff", '\
     **!quote** -> Send a random quote from a movie \n\
     **!react** -> Convert your text or emoji into reaction for a previous message in channel \n\
@@ -143,28 +143,28 @@ function playmusic(message, song) {
   message.delete();
   if (message.member.voiceChannel) {
     message.member.voiceChannel.join().then(connection => {
-      const dispatcher = connection.playStream(fs.createReadStream('./songs/' + song + '.mp3'));
-      dispatcher.setVolume(1);
-      dispatcher.on('end', () => {
-        connection.disconnect();
-      });
-      dispatcher.on('error', (e) => {
-        connection.disconnect();
-      });
-    })
-    .catch(console.log);
+        const dispatcher = connection.playStream(fs.createReadStream('./songs/' + song + '.mp3'));
+        dispatcher.setVolume(1);
+        dispatcher.on('end', () => {
+          connection.disconnect();
+        });
+        dispatcher.on('error', (e) => {
+          connection.disconnect();
+        });
+      })
+      .catch(console.log);
   }
 }
 
 function chooserandom(message, text) {
-  text = text.substring(text.indexOf("<@&")+3, text.indexOf(">"));
+  text = text.substring(text.indexOf("<@&") + 3, text.indexOf(">"));
   people = Array.from(message.guild.roles.get(text).members);
   result = people[Math.floor(Math.random() * people.length)][1];
   message.channel.send("<@!" + result.id + ">");
 }
 
 function runprogr(message, program, params) {
-  params.splice(0,1);
+  params.splice(0, 1);
   var pyProg = spawn('python', ["./scripts/" + program + ".py", params.join(" ")]);
   pyProg.stdout.on('data', function (data) {
     data = data.toString('utf8');
@@ -174,7 +174,7 @@ function runprogr(message, program, params) {
 
 // send emoji letter text
 function bigtext(message, text) {
-  text.splice(0,1);
+  text.splice(0, 1);
   message.delete();
   text = text.join(" ").toUpperCase();
   newmessage = "";
@@ -191,7 +191,7 @@ function bigtext(message, text) {
 
 function react(message, text) {
   message.delete();
-  text.splice(0,1);
+  text.splice(0, 1);
   //text = text.join(" ").toUpperCase().trim();
   message.channel.fetchMessages({
     limit: 1,
@@ -203,12 +203,12 @@ function react(message, text) {
       i = text[index];
       i = i.toUpperCase();
       if (i.startsWith("<")) {
-        i = i.substring(i.indexOf(":", 3)+1, i.indexOf(">"));
+        i = i.substring(i.indexOf(":", 3) + 1, i.indexOf(">"));
         reactstring.push(message.guild.emojis.get(i));
       } else {
         for (var j = 0; j < i.length; j++) {
           reactstring.push(emojis[i.charAt(j)]);
-        }        
+        }
       }
     }
     reacttomessage(message, reactstring)
@@ -217,17 +217,17 @@ function react(message, text) {
 
 
 function sendall(text, vote) {
-  text.splice(0,1);
+  text.splice(0, 1);
   infochat.send("@everyone \n" + text.join(" ")).then(function (message) {
     if (vote) {
-      reacttomessage(message, ["✅","❎"]);
+      reacttomessage(message, ["✅", "❎"]);
     }
   });
 }
 
 function edit(message, text) {
   console.log(message);
-  text.splice(0,1);
+  text.splice(0, 1);
   message.edit("@everyone \n" + text.join(" "));
 }
 
