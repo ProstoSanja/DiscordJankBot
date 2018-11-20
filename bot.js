@@ -92,7 +92,9 @@ function checkmessage(message, text) {
       message.reply(" We have updated our privacy policy. Please acknowledge new terms here: http://csgofuckyourself.com");
       break;
     case "!delete":
-      message.delete();
+      message.delete().catch(function (e) {
+        
+      });
       deletemessage(text);
       break;
   }
