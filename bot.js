@@ -25,6 +25,11 @@ client.on('ready', () => {
   }); //temp as hell, fix later!
 });
 
+client.on('error', () => {
+  console.log("RESTARTING");
+  client.login(require("./secret"));
+});
+
 client.on('message', message => {
   text = message.content.trim().split(" ");
   if (text[0] == "" || !text[0].startsWith("!") || message.author == me) {
