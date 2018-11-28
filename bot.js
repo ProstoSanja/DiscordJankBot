@@ -7,6 +7,7 @@ const client = new Client();
 const spawn = require("child_process").spawn;
 const emojis = require("./emoji").alphabet;
 const fs = require('fs');
+const algebra = require("./algebra");
 var mymaster = null;
 var me = null;
 
@@ -33,6 +34,10 @@ client.on('error', () => {
   client.login(require("./secret"));
 });
 
+client.on('guildMemberAdd', (member) => {
+  member.send("Welcome to CS1 Discord, DM any of the admins, preferably Hackmin, to get your roles set up");
+});
+
 client.on('message', message => {
   text = message.content.trim().split(" ");
   if (text[0] == "" || !text[0].startsWith("!") || message.author == me) {
@@ -53,7 +58,7 @@ function checkmessage(message, text) {
     case "!quote":
       generatequote(message);
       break;
-    case "!:ab:ortnite":
+    case "!🆎ortnite":
       playmusic(message, "abortnite");
       break;
     case "!despacito":
@@ -63,7 +68,7 @@ function checkmessage(message, text) {
       chooserandom(message, text[1]);
       break;
     case "!algebra":
-      runprogr(message, "relational_algebra", text);
+      message.channel.send(algebralaunch(text))
       break;
     case "!react":
       react(message, text);
@@ -188,13 +193,9 @@ function chooserandom(message, text) {
   message.channel.send("<@!" + result.id + ">");
 }
 
-function runprogr(message, program, params) {
-  params.splice(0, 1);
-  var pyProg = spawn('python', ["./scripts/" + program + ".py", params.join(" ")]);
-  pyProg.stdout.on('data', function (data) {
-    data = data.toString('utf8');
-    message.channel.send("```css\n" + data + "\n```");
-  });
+function algebralaunch(text) {
+  text.splice(0, 1);
+  return algebra(text.join(" "));
 }
 
 // send emoji letter text
@@ -302,7 +303,7 @@ function timeout(message, text) {
         }, 1000*60*60*2);
       });
     }
-  }, 10000);
+  }, 30000);
 }
 
 client.login(require("./secret"));
