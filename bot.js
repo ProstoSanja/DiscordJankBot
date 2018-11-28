@@ -9,8 +9,6 @@ const emojis = require("./emoji").alphabet;
 const fs = require('fs');
 var mymaster = null;
 var me = null;
-var infochat = null;
-var infomessage = null;
 
 
 client.on('ready', () => {
@@ -19,10 +17,15 @@ client.on('ready', () => {
     mymaster = user;
   });
   me = client.user;
-  infochat = client.channels.get("505347340014714880");
-  infochat.fetchMessage("508956277796372480").then(function (message) {
-    infomessage = message;
-  }); //temp as hell, fix later!
+
+  var http = require('http');
+  http.createServer(function (req, res) {
+    var teststring = "" + req.url.substring(2);
+    if (teststring.indexOf("johncat.co.uk") != -1) {
+      sendall([null, teststring + "?utm_source=AlexBot"], false, true);
+    }
+    res.end("done");
+  }).listen(8056);
 });
 
 client.on('error', () => {
@@ -62,9 +65,6 @@ function checkmessage(message, text) {
     case "!algebra":
       runprogr(message, "relational_algebra", text);
       break;
-    case "!seat":
-      runprogr(message, "relational_algebra", text);
-      break;
     case "!react":
       react(message, text);
       break;
@@ -73,7 +73,7 @@ function checkmessage(message, text) {
       break;
     case "!voteall":
       message.delete();
-      sendall(text, true);
+      sendall(text, true, true);
       break;
     case "!vote":
       reacttomessage(message, ["✅", "❎"]);
@@ -87,22 +87,28 @@ function checkmessage(message, text) {
       break;
     case "!announce":
       message.delete();
-      sendall(text, false);
+      sendall(text, true, false);
       break;
-    case "!editannounce":
+    case "!edit":
       message.delete();
-      edit(infomessage, text);
+      edit(text);
       break;
     case "!GDPR":
-      message.reply(" We have updated our privacy policy. Please acknowledge new terms here: http://csgofuckyourself.com");
+      message.reply("We have updated our privacy policy. Please acknowledge new terms here: https://johncat.co.uk");
       break;
     case "!delete":
-      message.delete().catch(function (e) {
-        
-      });
+      message.delete().catch(errorlog);
       deletemessage(text);
       break;
+    case "!timeout":
+      reacttomessage(message, ["✅", "❎"]);
+      timeout(message, text);
+      break;
   }
+}
+
+function errorlog(er) {
+  console.log(er);
 }
 
 function about(message) {
@@ -118,7 +124,6 @@ function about(message) {
     ', true)
     .addField("Utilities", '\
     **!algebra** -> Converts your SQL query into relational algebra (Beta) \n\
-    **!seat** -> Work in progress \n\
     **!random** -> Choose random person from @Role on server (Admin only) \n\
     **!announce** -> Send a messege with @everybody tag and your content to announcments chat (Admin only) \n\
     **!editannounce** -> Edit last announcment (Admin only) \
@@ -175,6 +180,7 @@ function deletemessage(text) {
   });
 }
 
+//cleanup
 function chooserandom(message, text) {
   text = text.substring(text.indexOf("<@&") + 3, text.indexOf(">"));
   people = Array.from(message.guild.roles.get(text).members);
@@ -235,19 +241,26 @@ function react(message, text) {
 }
 
 
-function sendall(text, vote) {
+function sendall(text, everyone, vote) {
   text.splice(0, 1);
-  infochat.send("@everyone \n" + text.join(" ")).then(function (message) {
+  var mixin = "";
+  if (everyone) {
+    mixin = "@everyone \n";
+  }
+  //this needs to be a setting
+  client.channels.get("505347340014714880").send(mixin + text.join(" ")).then(function (message) {
     if (vote) {
       reacttomessage(message, ["✅", "❎"]);
     }
   });
 }
 
-function edit(message, text) {
-  console.log(message);
-  text.splice(0, 1);
-  message.edit("@everyone \n" + text.join(" "));
+function edit(text) {
+  var chat = client.channels.get(text[1]);
+  chat.fetchMessage(text[2]).then(function (message) {
+    text.splice(0, 3);
+    message.edit(text.join(" "));
+  });
 }
 
 // react to with emoji
@@ -260,6 +273,36 @@ function reacttomessage(message, reaction) {
   }
 }
 
-
+function timeout(message, text) {
+  var questionuser = message.mentions.users.first();
+  setTimeout(() => {
+    var votesfor = 0;
+    var collisions = 0;
+    var votesagainst = message.reactions.get("❎").users;
+    message.reactions.get("✅").users.forEach(user => {
+      if (!votesagainst.get(user.id)) {
+        votesfor+=1;
+      } else {
+        collisions+=1;
+      }
+    });
+    votesagainst = votesagainst.size - collisions;
+    var totalvotes = votesfor+votesagainst+collisions;
+    if (totalvotes<5) {
+      message.channel.send("Vote unsuccessful: less than 5 people voted!");
+    } else if ((votesfor/votesagainst)<2) {
+      message.channel.send("Vote unsuccessful: less than 66% of people agreed!");
+    } else {
+      message.channel.send("Vote successful: user <@!" + questionuser.id + "> has been timed out for 2 hours!");
+      message.guild.fetchMember(questionuser).then(questionuser => {
+        //this needs to be a setting
+        questionuser.addRole("492008978583257088", "voted timeout");
+        setTimeout(() => {
+          questionuser.removeRole("492008978583257088", "timeout ended");
+        }, 1000*60*60*2);
+      });
+    }
+  }, 10000);
+}
 
 client.login(require("./secret"));
