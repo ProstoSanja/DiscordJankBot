@@ -3,13 +3,14 @@ const {
   Client,
   RichEmbed
 } = require('discord.js');
-const client = new Client();
-const spawn = require("child_process").spawn;
+var client = new Client();
 const emojis = require("./emoji").alphabet;
 const fs = require('fs');
 const algebra = require("./algebra");
 var mymaster = null;
+var myguild = null;
 var me = null;
+var rolemessage = null;
 
 
 client.on('ready', () => {
@@ -18,6 +19,13 @@ client.on('ready', () => {
     mymaster = user;
   });
   me = client.user;
+  me.setPresence({ game: { name: 'your complaints', type: 'LISTENING' }, status: 'online' });
+
+  //this should be a setting
+  myguild = client.guilds.get("492008433667801090");
+  client.channels.get("492011587192881162").fetchMessage("534112284138668061").then(function (message) {
+    rolemessage = message;
+  });
 
   var http = require('http');
   http.createServer(function (req, res) {
@@ -31,11 +39,33 @@ client.on('ready', () => {
 
 client.on('error', () => {
   console.log("RESTARTING");
+  client = new Client();
   client.login(require("./secret"));
 });
 
 client.on('guildMemberAdd', (member) => {
-  member.send("Welcome to CS1 Discord, DM any of the admins, preferably Hackmin, to get your roles set up");
+  member.send("Welcome to CS Discord, DM any of the admins, preferably Hackmin, to get your roles set up");
+});
+
+//this needs to be a setting
+client.on('messageReactionAdd', (messageReaction, user) => {
+  if (messageReaction.message.id == rolemessage.id) {
+    var isfirstyear = myguild.roles.get("534070745681362954").members.get(user.id);
+    var issecondyear = myguild.roles.get("534080360992997388").members.get(user.id);
+    if (isfirstyear == undefined && issecondyear == undefined) {
+      if (messageReaction.emoji.name == emojis[1]) {
+        myguild.fetchMember(user).then(guilduser => {
+          guilduser.addRole("534070745681362954", "Joined the server and chose 1st year");
+        });
+        console.log(1)
+      } else if (messageReaction.emoji.name == emojis[2]) {
+        myguild.fetchMember(user).then(guilduser => {
+          guilduser.addRole("534080360992997388", "Joined the server and chose 2nd year");
+        });
+        console.log(2)
+      }
+    }
+  }
 });
 
 client.on('message', message => {
@@ -78,7 +108,7 @@ function checkmessage(message, text) {
       break;
     case "!voteall":
       message.delete();
-      sendall(text, true, true);
+      //sendall(text, true, true);
       break;
     case "!vote":
       reacttomessage(message, ["✅", "❎"]);
@@ -92,28 +122,23 @@ function checkmessage(message, text) {
       break;
     case "!announce":
       message.delete();
-      sendall(text, true, false);
+      //sendall(text, true, false);
       break;
     case "!edit":
       message.delete();
-      edit(text);
+      //edit(text);
       break;
     case "!GDPR":
       message.reply("We have updated our privacy policy. Please acknowledge new terms here: https://johncat.co.uk");
       break;
     case "!delete":
-      message.delete().catch(errorlog);
-      deletemessage(text);
+      message.delete();
+      //deletemessage(text);
       break;
     case "!timeout":
-      reacttomessage(message, ["✅", "❎"]);
       timeout(message, text);
       break;
   }
-}
-
-function errorlog(er) {
-  console.log(er);
 }
 
 function about(message) {
@@ -274,8 +299,12 @@ function reacttomessage(message, reaction) {
   }
 }
 
-function timeout(message, text) {
+function timeout(message, text) {  
   var questionuser = message.mentions.users.first();
+  if (!questionuser) {
+    return;
+  }
+  reacttomessage(message, ["✅", "❎"]);
   setTimeout(() => {
     var votesfor = 0;
     var collisions = 0;
@@ -294,13 +323,13 @@ function timeout(message, text) {
     } else if ((votesfor/votesagainst)<2) {
       message.channel.send("Vote unsuccessful: less than 66% of people agreed!");
     } else {
-      message.channel.send("Vote successful: user <@!" + questionuser.id + "> has been timed out for 2 hours!");
+      message.channel.send("Vote successful: user <@!" + questionuser.id + "> has been timed out for 10 minutes!");
       message.guild.fetchMember(questionuser).then(questionuser => {
         //this needs to be a setting
         questionuser.addRole("492008978583257088", "voted timeout");
         setTimeout(() => {
           questionuser.removeRole("492008978583257088", "timeout ended");
-        }, 1000*60*60*2);
+        }, 1000*60*10);
       });
     }
   }, 30000);

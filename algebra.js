@@ -15,7 +15,7 @@ function algebra(query) {
     projection();
     tablename();
     selection();
-    var anwser = "```anwser := ";
+    var anwser = "```answer := ";
     
     if (datastructure["projection"]) {
         anwser += "P(" + datastructure["projection"].join(", ") + ")(";
