@@ -5,6 +5,7 @@ const {
 } = require('discord.js');
 var client = new Client();
 const emojis = require("./emoji").alphabet;
+const cmsreq = require("./cms");
 const fs = require('fs');
 const algebra = require("./algebra");
 var mymaster = null;
@@ -26,12 +27,21 @@ client.on('ready', () => {
   client.channels.get("492011587192881162").fetchMessage("534112284138668061").then(function (message) {
     rolemessage = message;
   });
+  
+  setInterval(() => {
+    try {
+      cmsreq(client.channels.get("502142784350715904"));
+    } catch (ex) {
+
+    }
+  }, 1000*60);
 
   var http = require('http');
   http.createServer(function (req, res) {
     var teststring = "" + req.url.substring(2);
+    console.log(teststring);
     if (teststring.indexOf("johncat.co.uk") != -1) {
-      sendall([null, teststring + "?utm_source=AlexBot"], false, true);
+      sendall([null, teststring + "?utm_source=discord_bot&utm_medium=discord_announcments"], false, true);
     }
     res.end("done");
   }).listen(8056);
@@ -39,12 +49,14 @@ client.on('ready', () => {
 
 client.on('error', () => {
   console.log("RESTARTING");
-  client = new Client();
-  client.login(require("./secret"));
+  setTimeout(() => {
+    client = new Client();
+    client.login(require("./secret"));
+  }, 1000*60);
 });
 
 client.on('guildMemberAdd', (member) => {
-  member.send("Welcome to CS Discord, DM any of the admins, preferably Hackmin, to get your roles set up");
+  member.send("Welcome to CS Discord, roles are assigned in #newcomers channel. If you have any problems DM any of the admins, preferably Hackmin.");
 });
 
 //this needs to be a setting
@@ -56,11 +68,13 @@ client.on('messageReactionAdd', (messageReaction, user) => {
       if (messageReaction.emoji.name == emojis[1]) {
         myguild.fetchMember(user).then(guilduser => {
           guilduser.addRole("534070745681362954", "Joined the server and chose 1st year");
+          guilduser.addRole("492008754834047006", "Joined the server");
         });
         console.log(1)
       } else if (messageReaction.emoji.name == emojis[2]) {
         myguild.fetchMember(user).then(guilduser => {
           guilduser.addRole("534080360992997388", "Joined the server and chose 2nd year");
+          guilduser.addRole("492008754834047006", "Joined the server");
         });
         console.log(2)
       }

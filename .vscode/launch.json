@@ -15,6 +15,12 @@
             "request": "launch",
             "name": "TEST SCRIPT",
             "program": "${workspaceFolder}\\quickscript.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "CMS",
+            "program": "${workspaceFolder}\\cms.js"
         }
     ]
 }
